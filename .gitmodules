@@ -1,0 +1,6 @@
+[submodule "sw/esp32-rotary-encoder"]
+	path = sw/esp32-rotary-encoder
+	url = https://github.com/DavidAntliff/esp32-rotary-encoder.git
+[submodule "hw/SparkFun-KiCad-Libraries"]
+	path = hw/SparkFun-KiCad-Libraries
+	url = https://github.com/sparkfun/SparkFun-KiCad-Libraries.git

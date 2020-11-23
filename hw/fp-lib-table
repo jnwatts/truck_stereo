@@ -1,0 +1,5 @@
+(fp_lib_table
+  (lib (name Boards)(type KiCad)(uri ${KIPRJMOD}/SparkFun-KiCad-Libraries/Footprints/Boards.pretty)(options "")(descr ""))
+  (lib (name RF)(type KiCad)(uri ${KIPRJMOD}/SparkFun-KiCad-Libraries/Footprints/RF.pretty)(options "")(descr ""))
+  (lib (name truck_stereo)(type KiCad)(uri ${KIPRJMOD}/truck_stereo.pretty)(options "")(descr ""))
+)
