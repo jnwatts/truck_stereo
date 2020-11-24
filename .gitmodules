@@ -4,3 +4,6 @@
 [submodule "hw/SparkFun-KiCad-Libraries"]
 	path = hw/SparkFun-KiCad-Libraries
 	url = https://github.com/sparkfun/SparkFun-KiCad-Libraries.git
+[submodule "sw/esp-idf"]
+	path = sw/esp
+	url = https://github.com/espressif/esp-idf.git
