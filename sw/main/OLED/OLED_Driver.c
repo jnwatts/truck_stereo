@@ -1,13 +1,13 @@
 /******************************************************************************
 ***************************Intermediate driver layer***************************
-* | file      	:	OLED_Driver.c
-* |	version		:	V1.0
-* | date		:	2017-11-09
-* | function	:	SSD1327 Drive function
-	
+* | file        :   OLED_Driver.c
+* | version     :   V1.0
+* | date        :   2017-11-09
+* | function    :   SSD1327 Drive function
+    
 note:
 Image scanning:
-Please use progressive scanning to generate images or fonts			
+Please use progressive scanning to generate images or fonts         
 ******************************************************************************/
 #include "OLED_Driver.h"
 #include <stdio.h>
@@ -16,7 +16,7 @@ COLOR Buffer[OLED_WIDTH / 2 * OLED_HEIGHT];
 OLED_DIS sOLED_DIS;
 /*******************************************************************************
 function:
-			Hardware reset
+            Hardware reset
 *******************************************************************************/
 static void OLED_Reset(void)
 {
@@ -30,7 +30,7 @@ static void OLED_Reset(void)
 
 /*******************************************************************************
 function:
-		Write register address and data
+        Write register address and data
 *******************************************************************************/
 void OLED_WriteReg(uint8_t Reg)
 {
@@ -58,7 +58,7 @@ void OLED_WriteData(uint8_t Data)
 
 /*******************************************************************************
 function:
-		Common register initialization
+        Common register initialization
 *******************************************************************************/
 static void OLED_InitReg(void)
 {
@@ -115,10 +115,10 @@ static void OLED_InitReg(void)
 }
 
 /********************************************************************************
-function:	Set the display scan and color transfer modes
+function:   Set the display scan and color transfer modes
 parameter:
-		Scan_dir   :   Scan direction
-		Colorchose :   RGB or GBR color format
+        Scan_dir   :   Scan direction
+        Colorchose :   RGB or GBR color format
 ********************************************************************************/
 void OLED_SetGramScanWay(OLED_SCAN_DIR Scan_dir)
 {
@@ -127,12 +127,12 @@ void OLED_SetGramScanWay(OLED_SCAN_DIR Scan_dir)
 
     //Get GRAM and OLED width and height
     if(Scan_dir == L2R_U2D || Scan_dir == L2R_D2U || Scan_dir == R2L_U2D || Scan_dir == R2L_D2U) {
-        sOLED_DIS.OLED_Dis_Column	= OLED_WIDTH;
+        sOLED_DIS.OLED_Dis_Column   = OLED_WIDTH;
         sOLED_DIS.OLED_Dis_Page = OLED_HEIGHT;
         sOLED_DIS.OLED_X_Adjust = OLED_X;
         sOLED_DIS.OLED_Y_Adjust = OLED_Y;
     } else {
-        sOLED_DIS.OLED_Dis_Column	= OLED_HEIGHT;
+        sOLED_DIS.OLED_Dis_Column   = OLED_HEIGHT;
         sOLED_DIS.OLED_Dis_Page = OLED_WIDTH;
         sOLED_DIS.OLED_X_Adjust = OLED_Y;
         sOLED_DIS.OLED_Y_Adjust = OLED_X;
@@ -141,7 +141,7 @@ void OLED_SetGramScanWay(OLED_SCAN_DIR Scan_dir)
 
 /********************************************************************************
 function:
-			initialization
+            initialization
 ********************************************************************************/
 void OLED_Init(OLED_SCAN_DIR OLED_ScanDir)
 {
@@ -160,10 +160,10 @@ void OLED_Init(OLED_SCAN_DIR OLED_ScanDir)
 }
 
 /********************************************************************************
-function:	Set the display point(Xpoint, Ypoint)
+function:   Set the display point(Xpoint, Ypoint)
 parameter:
-		xStart :   X direction Start coordinates
-		xEnd   :   X direction end coordinates
+        xStart :   X direction Start coordinates
+        xEnd   :   X direction end coordinates
 ********************************************************************************/
 void OLED_SetCursor(POINT Xpoint, POINT Ypoint)
 {
@@ -180,12 +180,12 @@ void OLED_SetCursor(POINT Xpoint, POINT Ypoint)
 }
 
 /********************************************************************************
-function:	Set the display Window(Xstart, Ystart, Xend, Yend)
+function:   Set the display Window(Xstart, Ystart, Xend, Yend)
 parameter:
-		xStart :   X direction Start coordinates
-		Ystart :   Y direction Start coordinates
-		Xend   :   X direction end coordinates
-		Yend   :   Y direction end coordinates
+        xStart :   X direction Start coordinates
+        Ystart :   Y direction Start coordinates
+        Xend   :   X direction end coordinates
+        Yend   :   Y direction end coordinates
 ********************************************************************************/
 void OLED_SetWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend)
 {
@@ -203,9 +203,9 @@ void OLED_SetWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend)
 }
 
 /********************************************************************************
-function:	Set show color
+function:   Set show color
 parameter:
-		Color  :   Set show color,16-bit depth
+        Color  :   Set show color,16-bit depth
 ********************************************************************************/
 //static void OLED_SetColor(LENGTH Dis_Width, LENGTH Dis_Height, COLOR Color ){
 void OLED_SetColor(POINT Xpoint, POINT Ypoint, COLOR Color)
@@ -223,7 +223,7 @@ void OLED_SetColor(POINT Xpoint, POINT Ypoint, COLOR Color)
 
 /********************************************************************************
 function:
-			Clear screen
+            Clear screen
 ********************************************************************************/
 void OLED_Clear(COLOR Color)
 {
@@ -237,7 +237,7 @@ void OLED_Clear(COLOR Color)
 }
 
 /********************************************************************************
-function:	Update all memory to LCD
+function:   Update all memory to LCD
 ********************************************************************************/
 void OLED_Display(void)
 {
@@ -256,40 +256,40 @@ void OLED_Display(void)
 
 /********************************************************************************
 function:
-			Clear Window
+            Clear Window
 ********************************************************************************/
 void OLED_ClearWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend, COLOR Color)
 {
     uint16_t i,m, Xpoint, Ypoint;
-	Xpoint = (Xend - Xstart) / 2;
-	Ypoint = Yend - Ystart;
-	
+    Xpoint = (Xend - Xstart) / 2;
+    Ypoint = Yend - Ystart;
+    
     uint16_t Num = Xstart + Ystart * (sOLED_DIS.OLED_Dis_Column / 2);
     for(i = 0; i < Ypoint; i++) {
         for(m = 0; m < Xpoint; m++) {
             Buffer[Num + m] = 0x00;
         }
-		Num = Xstart + (Ystart + i + 1) * (sOLED_DIS.OLED_Dis_Column / 2);
+        Num = Xstart + (Ystart + i + 1) * (sOLED_DIS.OLED_Dis_Column / 2);
     }
 }
 
 /********************************************************************************
-function:	Update Window memory to LCD
+function:   Update Window memory to LCD
 ********************************************************************************/
 void OLED_DisWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend)
 {
-	uint16_t page, Column, Xpoint, Ypoint;
-	Xpoint = (Xend - Xstart) / 2;
-	Ypoint = Yend - Ystart;
+    uint16_t page, Column, Xpoint, Ypoint;
+    Xpoint = (Xend - Xstart) / 2;
+    Ypoint = Yend - Ystart;
     OLED_SetWindow(Xstart, Ystart, Xend, Yend);
-	
-	//write data
+    
+    //write data
     COLOR *pBuf = (COLOR *)Buffer + Xstart + Ystart * (sOLED_DIS.OLED_Dis_Column / 2);
     for (page = 0; page < Ypoint; page++) {
         for(Column = 0; Column < Xpoint; Column++ ) {
             OLED_WriteData(*pBuf);
             pBuf++;
         }
-		pBuf = (COLOR *)Buffer + Xstart + (Ystart + page + 1) * (sOLED_DIS.OLED_Dis_Column / 2);
-	}
+        pBuf = (COLOR *)Buffer + Xstart + (Ystart + page + 1) * (sOLED_DIS.OLED_Dis_Column / 2);
+    }
 }
