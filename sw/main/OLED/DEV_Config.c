@@ -1,117 +1,106 @@
-/******************************************************************************
-**************************Hardware interface layer*****************************
-* | file        :   DEV_Config.c
-* | version     :   V1.0
-* | date        :   2017-08-14
-* | function    :   
-    Provide the hardware underlying interface   
-******************************************************************************/
-#include "DEV_Config.h"
-#include "stm32f1xx_hal_i2c.h"
-#include "i2c.h"
-
-#include "stm32f1xx_hal_spi.h"
-#include "spi.h"
-
-#include "usart.h"
-#include <stdio.h>      //printf()
-#include <string.h>
+#include <driver/spi_common.h>
+#include <driver/spi_master.h>
+#include <freertos/task.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-/********************************************************************************
-function:   System Init
-note:
-    Initialize the communication method
-********************************************************************************/
-uint8_t System_Init(void)
+#include "DEV_Config.h"
+
+//OLED GPIO
+static const gpio_num_t DISP_MOSI = GPIO_NUM_23;
+static const gpio_num_t DISP_SCLK = GPIO_NUM_18;
+static const gpio_num_t DISP_DC = GPIO_NUM_4; // HACK: Relocated from 2 due to USB programming interference
+static const gpio_num_t DISP_RST = GPIO_NUM_15;
+static const gpio_num_t DISP_CS = GPIO_NUM_5;
+static const spi_host_device_t DISP_SPI_BUS = SPI3_HOST;
+
+static const spi_bus_config_t bus_config = {
+    .miso_io_num = -1,
+    .mosi_io_num = DISP_MOSI,
+    .sclk_io_num = DISP_SCLK,
+    .quadwp_io_num = -1,
+    .quadhd_io_num = -1,
+    .max_transfer_sz = 128*128/2, // Worst case, entire buffer ram
+};
+
+static const spi_device_interface_config_t dev_config = {
+    .mode = 0,
+    .clock_speed_hz = SPI_MASTER_FREQ_20M,
+    .spics_io_num = DISP_CS,
+    .queue_size=16,
+};
+
+static spi_device_handle_t spi_handle;
+
+void OLED_Sys_Init(void)
 {
-#if USE_SPI_4W
-    printf("USE 4wire spi\r\n");
-#elif USE_IIC
-    printf("USE i2c\r\n");
-    //DC = 1 => addrdess = 0X3D
-    //DC = 0 => addrdess = 0X3C
-    OLED_DC_1;
-#endif
-    return 0;
+    // init gpio
+    ESP_ERROR_CHECK(gpio_reset_pin(DISP_DC));
+    ESP_ERROR_CHECK(gpio_reset_pin(DISP_RST));
+
+    ESP_ERROR_CHECK(gpio_pullup_dis(DISP_DC));
+    ESP_ERROR_CHECK(gpio_pullup_dis(DISP_RST));
+
+    ESP_ERROR_CHECK(gpio_set_level(DISP_DC, 0));
+    ESP_ERROR_CHECK(gpio_set_level(DISP_RST, 0));
+
+    ESP_ERROR_CHECK(gpio_set_direction(DISP_DC, GPIO_MODE_OUTPUT));
+    ESP_ERROR_CHECK(gpio_set_direction(DISP_RST, GPIO_MODE_OUTPUT));
+
+    // init spi module
+    ESP_ERROR_CHECK(spi_bus_initialize(DISP_SPI_BUS, &bus_config, DISP_SPI_BUS));
+    ESP_ERROR_CHECK(spi_bus_add_device(DISP_SPI_BUS, &dev_config, &spi_handle));
 }
 
-void System_Exit(void)
+static void OLED_Write_Byte(uint8_t value, uint8_t Cmd)
 {
-
-}
-/********************************************************************************
-function:   Hardware interface
-note:
-    SPI4W_Write_Byte(value) : 
-        HAL library hardware SPI
-        Register hardware SPI
-        Gpio analog SPI
-    I2C_Write_Byte(value, cmd):
-        HAL library hardware I2C
-********************************************************************************/
-uint8_t SPI4W_Write_Byte(uint8_t value)
-{
-#if 0
-    HAL_SPI_Transmit(&hspi1, &value, 1, 500);
-#elif 0
-    char i;
-    for(i = 0; i < 8; i++) {
-        SPI_SCK_0;
-        if(value & 0X80)
-            SPI_MOSI_1;
-        else
-            SPI_MOSI_0;
-        Driver_Delay_us(10);
-        SPI_SCK_1;
-        Driver_Delay_us(10);
-        value = (value << 1);
-    }
-#else
-    __HAL_SPI_ENABLE(&hspi1);
-    SPI1->CR2 |= (1) << 12;
-
-    while((SPI1->SR & (1 << 1)) == 0)
-        ;
-
-    *((__IO uint8_t *)(&SPI1->DR)) = value;
-
-    while(SPI1->SR & (1 << 7)) ; //Wait for not busy
-
-    while((SPI1->SR & (1 << 0)) == 0) ; // Wait for the receiving area to be empty
-
-    return *((__IO uint8_t *)(&SPI1->DR));
-#endif
+    spi_transaction_t desc = {
+        .flags = SPI_TRANS_USE_TXDATA,
+        .tx_data = { value },
+        .length = 8,
+    };
+    gpio_set_level(DISP_DC, Cmd);
+    spi_device_transmit(spi_handle, &desc);
 }
 
-void I2C_Write_Byte(uint8_t value, uint8_t Cmd)
+static void OLED_Write_Block(uint8_t *data, uint16_t len, uint8_t Cmd)
 {
-    int Err;
-    uint8_t W_Buf[2] ;
-    W_Buf[0] = Cmd;
-    W_Buf[1] = value;
-    if(HAL_I2C_Master_Transmit(&hi2c1, (0X3D << 1) | 0X00, W_Buf, 2, 0x10) != HAL_OK) {
-        Err++;
-        if(Err == 1000) {
-            printf("send error\r\n");
-            return ;
-        }
-    }
+    spi_transaction_t desc = {
+        .flags = 0,
+        .tx_buffer = data,
+        .length = len * 8,
+    };
+    gpio_set_level(DISP_DC, Cmd);
+    spi_device_transmit(spi_handle, &desc);
 }
 
-/********************************************************************************
-function:   Delay function
-note:
-    Driver_Delay_ms(xms) : Delay x ms
-    Driver_Delay_us(xus) : Delay x us
-********************************************************************************/
-void Driver_Delay_ms(uint32_t xms)
+void OLED_Reset(void)
 {
-    HAL_Delay(xms);
+    gpio_set_level(DISP_RST, 1);
+    OLED_Delay_ms(100);
+    gpio_set_level(DISP_RST, 0);
+    OLED_Delay_ms(100);
+    gpio_set_level(DISP_RST, 1);
+    OLED_Delay_ms(100);
 }
 
-void Driver_Delay_us(uint32_t xus)
+void OLED_WriteReg(uint8_t reg)
 {
-    int j;
-    for(j=xus; j > 0; j--);
+    OLED_Write_Byte(reg, OLED_CMD);
+}
+
+void OLED_WriteData(uint8_t data)
+{
+    OLED_Write_Byte(data, OLED_RAM);
+}
+
+void OLED_WriteDataBlock(uint8_t *data, uint16_t len)
+{
+    OLED_Write_Block(data, len, OLED_RAM);
+}
+
+void OLED_Delay_ms(uint32_t ms)
+{
+    vTaskDelay(ms / portTICK_PERIOD_MS);
 }

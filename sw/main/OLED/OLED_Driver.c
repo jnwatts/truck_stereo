@@ -153,7 +153,7 @@ void OLED_Init(OLED_SCAN_DIR OLED_ScanDir)
 
     //Set the display scan and color transfer modes
     OLED_SetGramScanWay(OLED_ScanDir );
-    Driver_Delay_ms(200);
+    OLED_Delay_ms(200);
 
     //Turn on the OLED display
     OLED_WriteReg(0xAF);
