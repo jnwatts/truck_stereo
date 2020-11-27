@@ -38,9 +38,9 @@ F 4 "DEV-13907" H 2550 5331 60  0000 C CNN "Field4"
 $EndComp
 Text Label 9800 900  2    50   ~ 0
 REMOTE_EN
-Text Label 3050 3350 0    50   ~ 0
+Text Label 3050 3250 0    50   ~ 0
 ESP32_TX
-Text Label 3050 3450 0    50   ~ 0
+Text Label 3050 3550 0    50   ~ 0
 ESP32_RX
 Text Label 5200 4900 2    50   ~ 0
 ESP32_RX
@@ -534,7 +534,7 @@ F 3 "" H 1450 4550 50  0001 C CNN
 $EndComp
 Wire Wire Line
 	1450 4650 1450 4550
-NoConn ~ 3050 3250
+NoConn ~ 3050 3350
 $Comp
 L Device:CP1_Small C1
 U 1 1 5FCE996C
@@ -636,7 +636,7 @@ Text Label 2050 3550 2    50   ~ 0
 ROT_A
 Text Label 2050 3650 2    50   ~ 0
 ROT_B
-Text Label 2050 3750 2    50   ~ 0
+Text Label 2050 4050 2    50   ~ 0
 ROT_SW
 NoConn ~ 5200 4800
 NoConn ~ 5200 4700
@@ -687,13 +687,13 @@ Text Label 3050 3750 0    50   ~ 0
 DISP_MOSI
 Text Label 3050 3650 0    50   ~ 0
 DISP_MISO
-Text Label 3050 4150 0    50   ~ 0
-DISP_CS
-Text Label 3050 3950 0    50   ~ 0
+Text Label 3050 4350 0    50   ~ 0
 DISP_DC
+Text Label 3050 3950 0    50   ~ 0
+DISP_CS
 Text Label 3050 4050 0    50   ~ 0
 DISP_RST
-NoConn ~ 3050 3550
+NoConn ~ 3050 3450
 Wire Wire Line
 	3050 3150 3600 3150
 Wire Wire Line
@@ -768,13 +768,12 @@ DISP_MOSI
 Text Label 1350 1350 2    50   ~ 0
 DISP_MISO
 Text Label 1350 850  2    50   ~ 0
-DISP_CS
-Text Label 1350 1050 2    50   ~ 0
 DISP_DC
+Text Label 1350 1050 2    50   ~ 0
+DISP_CS
 Text Label 1350 950  2    50   ~ 0
 DISP_RST
 NoConn ~ 2050 3850
-NoConn ~ 2050 4050
 Text Label 2050 4450 2    50   ~ 0
 REMOTE_EN
 $Comp
@@ -816,5 +815,6 @@ Wire Wire Line
 	1450 7200 1450 7100
 Text Label 2050 4550 2    50   ~ 0
 ESP32_RST
-NoConn ~ 3050 4350
+NoConn ~ 3050 4150
+NoConn ~ 2050 3750
 $EndSCHEMATC
