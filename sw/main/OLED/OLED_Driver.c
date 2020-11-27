@@ -14,47 +14,6 @@ Please use progressive scanning to generate images or fonts
 
 COLOR Buffer[OLED_WIDTH / 2 * OLED_HEIGHT];
 OLED_DIS sOLED_DIS;
-/*******************************************************************************
-function:
-            Hardware reset
-*******************************************************************************/
-static void OLED_Reset(void)
-{
-    OLED_RST_1;
-    Driver_Delay_ms(100);
-    OLED_RST_0;
-    Driver_Delay_ms(100);
-    OLED_RST_1;
-    Driver_Delay_ms(100);
-}
-
-/*******************************************************************************
-function:
-        Write register address and data
-*******************************************************************************/
-void OLED_WriteReg(uint8_t Reg)
-{
-#if USE_SPI_4W
-    OLED_DC_0;
-    OLED_CS_0;
-    SPI4W_Write_Byte(Reg);
-    OLED_CS_1;
-#elif USE_IIC
-    I2C_Write_Byte(Reg,IIC_CMD);
-#endif
-}
-
-void OLED_WriteData(uint8_t Data)
-{
-#if USE_SPI_4W
-    OLED_DC_1;
-    OLED_CS_0;
-    SPI4W_Write_Byte(Data);
-    OLED_CS_1;
-#elif USE_IIC
-    I2C_Write_Byte(Data,IIC_RAM);
-#endif
-}
 
 /*******************************************************************************
 function:

@@ -66,9 +66,6 @@ function:
 void OLED_Init( OLED_SCAN_DIR OLED_ScanDir);
 void OLED_SetGramScanWay(OLED_SCAN_DIR Scan_dir);
 
-void OLED_WriteReg(uint8_t Reg);
-void OLED_WriteData(uint8_t Data);
-
 //OLED set cursor + windows + color
 void OLED_SetCursor(POINT Xpoint, POINT Ypoint);
 void OLED_SetColor(POINT Xpoint, POINT Ypoint, COLOR Color);
