@@ -200,17 +200,8 @@ function:   Update all memory to LCD
 ********************************************************************************/
 void OLED_Display(void)
 {
-    uint16_t page, Column;
-    COLOR *pBuf = (COLOR *)Buffer;
-
     OLED_SetWindow(0, 0, sOLED_DIS.OLED_Dis_Column, sOLED_DIS.OLED_Dis_Page);
-    //write data
-    for (page = 0; page < sOLED_DIS.OLED_Dis_Page; page++) {
-        for(Column = 0; Column < sOLED_DIS.OLED_Dis_Column / 2; Column++ ) {
-            OLED_WriteData(*pBuf);
-            pBuf++;
-        }
-    }
+    OLED_WriteDataBlock((uint8_t*)Buffer, sOLED_DIS.OLED_Dis_Page * sOLED_DIS.OLED_Dis_Column / 2);
 }
 
 /********************************************************************************
