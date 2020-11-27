@@ -4,8 +4,13 @@ all: build
 
 IDF_PORT ?= /dev/ttyUSB0
 
+build:
+	mkdir -p build
+	cd build; \
+		/usr/bin/cmake ..
+	+$(MAKE) -C build
 
-build menuconfig:
+menuconfig:
 	idf.py $@
 
 flash monitor:
