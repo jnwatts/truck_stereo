@@ -34,8 +34,8 @@ Display::Display(void)
         5 + f_h + 2,
     };
     this->_title.padding = { 2, 5, 0, 5 };
-    this->_title.textColor = 15;
-    this->_title.fillColor = 1;
+    this->_title.textColor = 4;
+    this->_title.fillColor = 0;
     this->_title.rotateDelay_ms = 750;
     this->_title.initialDelay_ms = 1500;
     this->_widgets.push_back(&this->_title);
@@ -48,8 +48,8 @@ Display::Display(void)
         this->_title.pos.y2 + w_s + f_h + 2,
     };
     this->_artist.padding = this->_title.padding;
-    this->_artist.textColor = 15;
-    this->_artist.fillColor = 1;
+    this->_artist.textColor = 4;
+    this->_artist.fillColor = 0;
     this->_title.rotateDelay_ms = 750;
     this->_title.initialDelay_ms = 1500;
     this->_widgets.push_back(&this->_artist);
