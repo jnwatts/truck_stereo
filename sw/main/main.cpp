@@ -29,6 +29,7 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "display.h"
+#include "input.h"
 #include "rn52.h"
 
 #define USE_RN52 0
@@ -36,6 +37,12 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 Display display;
 RN52 rn52;
+Input input;
+
+void input_event(Input::msg_t msg)
+{
+    printf("%s\n", (msg == Input::RIGHT ? "RIGHT" : "LEFT"));
+}
 
 extern "C"
 void app_main(void)
@@ -47,6 +54,9 @@ void app_main(void)
 #if USE_DISPLAY
     display.enable();
 #endif
+
+    input.enable();
+    input.cb = input_event;
 
 #if USE_RN52
     rn52.enable();
@@ -67,6 +77,7 @@ void app_main(void)
 #if USE_DISPLAY
         display.loop();
 #endif
+        input.loop();
 #if USE_RN52
         rn52.loop();
         if (nextTrackInfoTick <= xTaskGetTickCount()) {
