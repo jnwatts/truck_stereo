@@ -5461,6 +5461,11 @@ void _UG_PutText(UG_TEXT* txt)
    }
 }
 
+void UG_PutText( UG_TEXT* txt )
+{
+    _UG_PutText(txt);
+}
+
 UG_OBJECT* _UG_GetFreeObject( UG_WINDOW* wnd )
 {
    UG_U8 i;
@@ -6016,6 +6021,15 @@ UG_RESULT UG_WindowAlert( UG_WINDOW* wnd )
    if ( UG_WindowSetTitleTextColor( wnd, UG_WindowGetTitleColor( wnd ) ) == UG_RESULT_FAIL ) return UG_RESULT_FAIL;
    if ( UG_WindowSetTitleColor( wnd, c ) == UG_RESULT_FAIL ) return UG_RESULT_FAIL;
    return UG_RESULT_OK;
+}
+
+UG_RESULT UG_WindowGetActive( UG_WINDOW **wnd )
+{
+    if ( gui->active_window ) {
+        *wnd = gui->active_window;
+        return UG_RESULT_OK;
+    }
+    return UG_RESULT_FAIL;
 }
 
 UG_RESULT UG_WindowSetForeColor( UG_WINDOW* wnd, UG_COLOR fc )
