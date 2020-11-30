@@ -195,15 +195,10 @@ typedef struct
    UG_U8 colors;
 } UG_BMP;
 
-#define BMP_BPP_1                                     (1<<0)
-#define BMP_BPP_2                                     (1<<1)
-#define BMP_BPP_4                                     (1<<2)
-#define BMP_BPP_8                                     (1<<3)
-#define BMP_BPP_16                                    (1<<4)
-#define BMP_BPP_32                                    (1<<5)
 #define BMP_RGB888                                    (1<<0)
 #define BMP_RGB565                                    (1<<1)
 #define BMP_RGB555                                    (1<<2)
+#define BMP_GRAY4                                     (1<<3)
 
 /* -------------------------------------------------------------------------------- */
 /* -- MESSAGE                                                                    -- */

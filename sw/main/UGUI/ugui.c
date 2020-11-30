@@ -5837,23 +5837,94 @@ void UG_WaitForUpdate( void )
    #endif    
 }
 
+#if defined(USE_COLOR_GRAY4)
+UG_COLOR UG_fromRGB888(UG_U16 c)
+{
+    UG_U8 r,g,b;
+    r = (c>>16)&0xFF;
+    g = (c>>8)&0xFF;
+    b = (c)&0xFF;
+    return  ((0.3 * r) + (0.59 * g) + (0.11 * b)) >> 8;
+}
+UG_COLOR UG_fromRGB565(UG_U16 c)
+{
+    UG_U8 r,g,b;
+    r = (c>>11)&0x1F;
+    r<<=3;
+    g = (c>>5)&0x3F;
+    g<<=2;
+    b = (c)&0x1F;
+    b<<=3;
+    return  ((0.3 * r) + (0.59 * g) + (0.11 * b)) >> 8;
+}
+UG_COLOR UG_fromGRAY4(UG_U8 c)
+{
+    return c;
+}
+#elif defined(USE_COLOR_RGB888)
+UG_COLOR UG_fromRGB888(UG_U16 c)
+{
+    return c;
+}
+UG_COLOR UG_fromRGB565(UG_U16 c)
+{
+    UG_U8 r,g,b;
+    r = (c>>11)&0x1F;
+    r<<=3;
+    g = (c>>5)&0x3F;
+    g<<=2;
+    b = (c)&0x1F;
+    b<<=3;
+    return ((UG_COLOR)r<<16) | ((UG_COLOR)g<<8) | (UG_COLOR)b;
+}
+UG_COLOR UG_fromGRAY4(UG_U8 c)
+{
+    UG_U8 r,g,b;
+    r = c * 0.3;
+    g = c * 0.59;
+    b = c * 0.11;
+    return ((UG_COLOR)r<<16) | ((UG_COLOR)g<<8) | (UG_COLOR)b;
+}
+#elif defined(USE_COLOR_RGB565)
+UG_COLOR UG_fromRGB888(UG_U16 c)
+{
+    UG_U8 r,g,b;
+    r = (c>>3)&0x1F;
+    g = (c>>2)&0x3F;
+    b = (c>>3)&0x1F;
+    return ((UG_COLOR)r<<11) | ((UG_COLOR)g<<5) | (UG_COLOR)b;
+}
+UG_COLOR UG_fromRGB565(UG_U16 c)
+{
+    return c;
+}
+UG_COLOR UG_fromGRAY4(UG_U8 c)
+{
+    UG_U8 r,g,b;
+    r = c * 0.3;
+    g = c * 0.59;
+    b = c * 0.11;
+    return ((UG_COLOR)r<<11) | ((UG_COLOR)g<<5) | (UG_COLOR)b;
+}
+#else
+#error No colorspace conversions available for selected colorspace
+#endif
+
 void UG_DrawBMP( UG_S16 xp, UG_S16 yp, UG_BMP* bmp )
 {
    UG_S16 x,y,xs;
-   UG_U8 r,g,b;
-   UG_U16* p;
-   UG_U16 tmp;
+   void* p;
    UG_COLOR c;
 
    if ( bmp->p == NULL ) return;
+   p = bmp->p;
 
-   /* Only support 16 BPP so far */
-   if ( bmp->bpp == BMP_BPP_16 )
-   {
-      p = (UG_U16*)bmp->p;
-   }
-   else
-   {
+   switch (bmp->bpp) {
+   case BMP_RGB888:
+   case BMP_RGB565:
+   case BMP_GRAY4:
+      break;
+   default:
       return;
    }
 
@@ -5863,15 +5934,14 @@ void UG_DrawBMP( UG_S16 xp, UG_S16 yp, UG_BMP* bmp )
       xp = xs;
       for(x=0;x<bmp->width;x++)
       {
-         tmp = *p++;
-         /* Convert RGB565 to RGB888 */
-         r = (tmp>>11)&0x1F;
-         r<<=3;
-         g = (tmp>>5)&0x3F;
-         g<<=2;
-         b = (tmp)&0x1F;
-         b<<=3;
-         c = ((UG_COLOR)r<<16) | ((UG_COLOR)g<<8) | (UG_COLOR)b;
+         if (bmp->bpp == BMP_RGB888)
+            c = UG_fromRGB565(*((UG_U16*)p++));
+         else if (bmp->bpp == BMP_RGB565)
+            c = UG_fromRGB888(*((UG_U32*)p++));
+         else if (bmp->bpp == BMP_GRAY4)
+            c = UG_fromGRAY4(*((UG_U8*)p++));
+         else
+            return;
          UG_DrawPixel( xp++ , yp , c );
       }
       yp++;
