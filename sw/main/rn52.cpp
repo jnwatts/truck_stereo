@@ -137,16 +137,16 @@ void RN52::enable(void)
     this->_commandMode = true;
 }
 
-void RN52::loop(void)
+bool RN52::loop(void)
 {
     uint16_t status;
     bool commandMode = this->_commandMode;
 
     if (!this->_enabled)
-        return;
+        return true;
 
     if (this->_isrCount == 0 && this->_nextTick > xTaskGetTickCount())
-        return;
+        return true;
     this->_isrCount = 0;
     this->_nextTick = xTaskGetTickCount() + rn52_loop_delay;
 
@@ -160,6 +160,8 @@ void RN52::loop(void)
 
     if (!commandMode)
         this->setCommand(false);
+
+    return true;
 }
 
 static std::map<std::string, MediaInfo::field_t> mediaInfoFields = {

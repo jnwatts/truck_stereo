@@ -40,7 +40,7 @@ public:
 
     void enable(void);
     void disable(void);
-    void loop(void);
+    bool loop(void);
     bool getMediaInfo(MediaInfo &info);
     void connect(void);
     void disconnect(void);
