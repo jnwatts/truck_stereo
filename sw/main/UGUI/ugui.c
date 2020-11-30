@@ -5685,6 +5685,18 @@ void _UG_DrawObjectFrame( UG_S16 xs, UG_S16 ys, UG_S16 xe, UG_S16 ye, UG_COLOR* 
 }
 
 #ifdef USE_PRERENDER_EVENT
+void _UG_SendWindowPrerenderEvent(UG_WINDOW *wnd)
+{
+    UG_MESSAGE msg;
+    msg.event = WND_EVENT_PRERENDER;
+    msg.type = MSG_TYPE_WINDOW;
+    msg.id = 0;
+    msg.sub_id = 0;
+    msg.src = wnd;
+
+    wnd->cb(&msg);
+}
+
 void _UG_SendObjectPrerenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 {
 	UG_MESSAGE msg;
@@ -5697,10 +5709,23 @@ void _UG_SendObjectPrerenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 	wnd->cb(&msg);
 }
 #else
+#define _UG_SendWindowPrerenderEvent(wnd) (void)0
 #define _UG_SendObjectPrerenderEvent(wnd, obj) (void)0
 #endif
 
 #ifdef USE_POSTRENDER_EVENT
+void _UG_SendWindowPostrenderEvent(UG_WINDOW *wnd)
+{
+    UG_MESSAGE msg;
+    msg.event = WND_EVENT_POSTRENDER;
+    msg.type = MSG_TYPE_WINDOW;
+    msg.id = 0;
+    msg.sub_id = 0;
+    msg.src = wnd;
+
+    wnd->cb(&msg);
+}
+
 void _UG_SendObjectPostrenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 {
 	UG_MESSAGE msg;
@@ -5713,6 +5738,7 @@ void _UG_SendObjectPostrenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 	wnd->cb(&msg);
 }
 #else
+#define _UG_SendWindowPostrenderEvent(wnd) (void)0
 #define _UG_SendObjectPostrenderEvent(wnd, obj) (void)0
 #endif
 
@@ -6564,6 +6590,9 @@ void _UG_WindowUpdate( UG_WINDOW* wnd )
    ye = wnd->ye;
 
    wnd->state &= ~WND_STATE_UPDATE;
+
+   _UG_SendWindowPrerenderEvent(wnd);
+
    /* Is the window visible? */
    if ( wnd->state & WND_STATE_VISIBLE )
    {
@@ -6602,6 +6631,8 @@ void _UG_WindowUpdate( UG_WINDOW* wnd )
    {
       UG_FillFrame(wnd->xs,wnd->xs,wnd->xe,wnd->ye,gui->desktop_color);
    }
+
+   _UG_SendWindowPostrenderEvent(wnd);
 }
 
 UG_RESULT _UG_WindowClear( UG_WINDOW* wnd )

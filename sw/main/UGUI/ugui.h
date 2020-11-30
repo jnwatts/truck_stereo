@@ -347,6 +347,12 @@ struct S_WINDOW
 #define WND_STYLE_HIDE_TITLE                          (0<<1)
 #define WND_STYLE_SHOW_TITLE                          (1<<1)
 
+/* Standard object events */
+#define WND_EVENT_NONE                                0
+#define WND_EVENT_PRERENDER                           1
+#define WND_EVENT_POSTRENDER                          2
+
+
 /* -------------------------------------------------------------------------------- */
 /* -- BUTTON OBJECT                                                              -- */
 /* -------------------------------------------------------------------------------- */
