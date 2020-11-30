@@ -5696,6 +5696,8 @@ void _UG_SendObjectPrerenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 
 	wnd->cb(&msg);
 }
+#else
+#define _UG_SendObjectPrerenderEvent(wnd, obj) (void)0
 #endif
 
 #ifdef USE_POSTRENDER_EVENT
@@ -5710,6 +5712,8 @@ void _UG_SendObjectPostrenderEvent(UG_WINDOW *wnd,UG_OBJECT *obj)
 
 	wnd->cb(&msg);
 }
+#else
+#define _UG_SendObjectPostrenderEvent(wnd, obj) (void)0
 #endif
 
 /* -------------------------------------------------------------------------------- */
@@ -7095,9 +7099,7 @@ void _UG_ButtonUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
             obj->a_abs.ye = obj->a_rel.ye + a.ys;
             if ( obj->a_abs.ye > wnd->ye ) return;
             if ( obj->a_abs.xe > wnd->xe ) return;
-#ifdef USE_PRERENDER_EVENT
             _UG_SendObjectPrerenderEvent(wnd, obj);
-#endif
 
             /* 3D or 2D style? */
             d = ( btn->style & BTN_STYLE_3D )? 3:1;
@@ -7136,9 +7138,7 @@ void _UG_ButtonUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
             txt.str = btn->str;
             _UG_PutText( &txt );
             obj->state &= ~OBJ_STATE_REDRAW;
-#ifdef USE_POSTRENDER_EVENT
             _UG_SendObjectPostrenderEvent(wnd, obj);
-#endif
          }
          /* Draw button frame */
          if ( !(btn->style & BTN_STYLE_NO_BORDERS) )
@@ -7673,9 +7673,7 @@ void _UG_CheckboxUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
          /* Full redraw necessary? */
          if ( (obj->state & OBJ_STATE_REDRAW) || (chb->state & CHB_STATE_ALWAYS_REDRAW) )
          {
-#ifdef USE_PRERENDER_EVENT
             _UG_SendObjectPrerenderEvent(wnd, obj);
-#endif
             txt.bc = chb->bc;
             txt.fc = chb->fc;
 
@@ -7714,9 +7712,7 @@ void _UG_CheckboxUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
             txt.str = chb->str;
             _UG_PutText( &txt );
             obj->state &= ~OBJ_STATE_REDRAW;
-#ifdef USE_POSTRENDER_EVENT
             _UG_SendObjectPostrenderEvent(wnd, obj);
-#endif
          }
          
          /* Draw Checkbox X */
@@ -8080,9 +8076,7 @@ void _UG_TextboxUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
             obj->a_abs.ye = obj->a_rel.ye + a.ys;
             if ( obj->a_abs.ye > wnd->ye ) return;
             if ( obj->a_abs.xe > wnd->xe ) return;
-#ifdef USE_PRERENDER_EVENT
             _UG_SendObjectPrerenderEvent(wnd, obj);
-#endif
 
             txt.bc = txb->bc;
             txt.fc = txb->fc;
@@ -8101,9 +8095,7 @@ void _UG_TextboxUpdate(UG_WINDOW* wnd, UG_OBJECT* obj)
             txt.str = txb->str;
             _UG_PutText( &txt );
             obj->state &= ~OBJ_STATE_REDRAW;
-#ifdef USE_POSTRENDER_EVENT
             _UG_SendObjectPostrenderEvent(wnd, obj);
-#endif
          }
       }
       else
