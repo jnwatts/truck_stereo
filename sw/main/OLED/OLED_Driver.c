@@ -171,7 +171,7 @@ void OLED_Clear(COLOR Color)
     //OLED_SetWindow(0, 0, sOLED_DIS.OLED_Dis_Column, sOLED_DIS.OLED_Dis_Page);
     for(i = 0; i < sOLED_DIS.OLED_Dis_Page; i++) {
         for(m = 0; m < (sOLED_DIS.OLED_Dis_Column / 2); m++) {
-            Buffer[i * (sOLED_DIS.OLED_Dis_Column / 2) + m] = Color | (Color << 4);
+            Buffer[i * (sOLED_DIS.OLED_Dis_Column / 2) + m] = (Color & 0xF) | ((Color & 0xF) << 4);
         }
     }
 }
