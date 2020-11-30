@@ -1,6 +1,7 @@
 #ifndef INPUT_H_
 #define INPUT_H_
 
+#include <functional>
 
 class Input
 {
@@ -14,7 +15,7 @@ public:
         SELECT,
     };
 
-    typedef void (*input_cb_t)(Input::msg_t msg);
+    typedef std::function<void(Input::msg_t)> input_cb_t;
 
     void enable(void);
     void loop(void);
