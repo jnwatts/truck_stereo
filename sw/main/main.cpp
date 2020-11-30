@@ -31,18 +31,14 @@ CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #include "display.h"
 #include "input.h"
 #include "rn52.h"
+#include "loop.h"
 
 #define USE_RN52 0
 #define USE_DISPLAY 1
 
-Display display;
+Display *display;
 RN52 rn52;
 Input input;
-
-void input_event(Input::msg_t msg)
-{
-    printf("%s\n", (msg == Input::RIGHT ? "RIGHT" : "LEFT"));
-}
 
 extern "C"
 void app_main(void)
@@ -52,34 +48,37 @@ void app_main(void)
     ESP_ERROR_CHECK(gpio_install_isr_service(ESP_INTR_FLAG_LOWMED));
 
 #if USE_DISPLAY
-    display.enable();
+    display = Display::getInstance();
+    display->enable();
+    Loop::registerLoop(std::bind(&Display::loop, display));
 #endif
 
     input.enable();
-    input.cb = input_event;
+    input.cb = std::bind(&Display::inputEvent, display, std::placeholders::_1);
+    Loop::registerLoop(std::bind(&Input::loop, &input));
 
 #if USE_RN52
     rn52.enable();
+    Loop::registerLoop(std::bind(&Rn52::loop, &rn52));
 #endif
     unsigned nextTrackInfoTick = 0;
     MediaInfo mi;
 
+
     if (nextTrackInfoTick <= xTaskGetTickCount()) {
         nextTrackInfoTick = xTaskGetTickCount() + 2000 / portTICK_PERIOD_MS;
-        mi.setField(MediaInfo::FIELD_TITLE, "LONG TITLE");
-        mi.setField(MediaInfo::FIELD_ARTIST, "ARTIST");
-        display.setMediaInfo(mi);
+        mi.setField(MediaInfo::FIELD_TITLE, "LONGER__A");
+        mi.setField(MediaInfo::FIELD_ARTIST, "A" RIGHT_ARROW LEFT_ARROW RIGHT_ANGLE_QUOTE LEFT_ANGLE_QUOTE "B");
+        display->setMediaInfo(mi);
     }
 
 
     for (;;) {
         vTaskDelay(1);
-#if USE_DISPLAY
-        display.loop();
-#endif
-        input.loop();
+
+        Loop::loop();
+
 #if USE_RN52
-        rn52.loop();
         if (nextTrackInfoTick <= xTaskGetTickCount()) {
             nextTrackInfoTick = xTaskGetTickCount() + 2000 / portTICK_PERIOD_MS;
             if (rn52.getMediaInfo(mi))
