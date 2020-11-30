@@ -13,6 +13,7 @@
 void OLED_Sys_Init(void);
 void OLED_Reset(void);
 void OLED_WriteReg(uint8_t reg);
+void OLED_WriteRegBlock(uint8_t *data, uint16_t len);
 void OLED_WriteData(uint8_t data);
 void OLED_WriteDataBlock(uint8_t *data, uint16_t len);
 void OLED_Delay_ms(uint32_t ms);

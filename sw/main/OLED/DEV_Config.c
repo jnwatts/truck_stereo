@@ -90,6 +90,11 @@ void OLED_WriteReg(uint8_t reg)
     OLED_Write_Byte(reg, OLED_CMD);
 }
 
+void OLED_WriteRegBlock(uint8_t *data, uint16_t len)
+{
+    OLED_Write_Block(data, len, OLED_CMD);
+}
+
 void OLED_WriteData(uint8_t data)
 {
     OLED_Write_Byte(data, OLED_RAM);
