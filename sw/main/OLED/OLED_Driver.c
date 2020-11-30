@@ -119,26 +119,6 @@ void OLED_Init(OLED_SCAN_DIR OLED_ScanDir)
 }
 
 /********************************************************************************
-function:   Set the display point(Xpoint, Ypoint)
-parameter:
-        xStart :   X direction Start coordinates
-        xEnd   :   X direction end coordinates
-********************************************************************************/
-void OLED_SetCursor(POINT Xpoint, POINT Ypoint)
-{
-    if((Xpoint > sOLED_DIS.OLED_Dis_Column) || (Ypoint > sOLED_DIS.OLED_Dis_Page))
-        return;
-
-    OLED_WriteReg(0x15);
-    OLED_WriteReg(Xpoint);
-    OLED_WriteReg(Xpoint);
-
-    OLED_WriteReg(0x75);
-    OLED_WriteReg(Ypoint);
-    OLED_WriteReg(Ypoint);
-}
-
-/********************************************************************************
 function:   Set the display Window(Xstart, Ystart, Xend, Yend)
 parameter:
         xStart :   X direction Start coordinates
