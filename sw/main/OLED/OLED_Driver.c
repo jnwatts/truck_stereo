@@ -25,11 +25,11 @@ static void OLED_InitReg(void)
 
     OLED_WriteReg(0x15);    //   set column address
     OLED_WriteReg(0x00);    //  start column   0
-    OLED_WriteReg(0x7f);    //  end column   127
+    OLED_WriteReg((OLED_WIDTH/2)-1);    //  end column   127
 
     OLED_WriteReg(0x75);    //   set row address
     OLED_WriteReg(0x00);    //  start row   0
-    OLED_WriteReg(0x7f);    //  end row   127
+    OLED_WriteReg(OLED_HEIGHT-1);    //  end row   127
 
     OLED_WriteReg(0x81);  // set contrast control
     OLED_WriteReg(0x80);
@@ -128,17 +128,20 @@ parameter:
 ********************************************************************************/
 void OLED_SetWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend)
 {
-    if((Xstart > sOLED_DIS.OLED_Dis_Column) || (Ystart > sOLED_DIS.OLED_Dis_Page) ||
-       (Xend > sOLED_DIS.OLED_Dis_Column) || (Yend > sOLED_DIS.OLED_Dis_Page))
+    Xstart &= ~1;
+    Xend |= 1;
+    if((Xstart > sOLED_DIS.OLED_Dis_Column - 1) || (Ystart > sOLED_DIS.OLED_Dis_Page - 1) ||
+       (Xend > sOLED_DIS.OLED_Dis_Column - 1) || (Yend > sOLED_DIS.OLED_Dis_Page - 1))
         return;
 
-    OLED_WriteReg(0x15);
-    OLED_WriteReg(Xstart);
-    OLED_WriteReg(Xend - 1);
+    Xstart = Xstart / 2;
+    Xend = Xend / 2;
 
-    OLED_WriteReg(0x75);
-    OLED_WriteReg(Ystart);
-    OLED_WriteReg(Yend - 1);
+    uint8_t set_col_address[] = {0x15, Xstart, Xend};
+    OLED_WriteRegBlock(set_col_address, sizeof(set_col_address) / sizeof(uint8_t));
+
+    uint8_t set_row_address[] = {0x75, Ystart, Yend};
+    OLED_WriteRegBlock(set_row_address, sizeof(set_row_address) / sizeof(uint8_t));
 }
 
 /********************************************************************************
@@ -149,15 +152,13 @@ parameter:
 //static void OLED_SetColor(LENGTH Dis_Width, LENGTH Dis_Height, COLOR Color ){
 void OLED_SetColor(POINT Xpoint, POINT Ypoint, COLOR Color)
 {
-    if(Xpoint > sOLED_DIS.OLED_Dis_Column || Ypoint > sOLED_DIS.OLED_Dis_Page) {
+    if(Xpoint > sOLED_DIS.OLED_Dis_Column - 1 || Ypoint > sOLED_DIS.OLED_Dis_Page - 1) {
         return;
     }
-    //1 byte control two points
-    if(Xpoint % 2 == 0) {
-        Buffer[Xpoint / 2 + Ypoint * 64] = (Color << 4) | Buffer[Xpoint / 2 + Ypoint * 64];
-    } else {
-        Buffer[Xpoint / 2 + Ypoint * 64] = (Color & 0x0f) | Buffer[Xpoint / 2 + Ypoint * 64];
-    }
+    unsigned buffer_stride = (sOLED_DIS.OLED_Dis_Column / 2);
+    COLOR *p = &Buffer[Xpoint / 2 + Ypoint * buffer_stride];
+    *p &= ~(0xf << (Xpoint & 1 ? 0 : 4));
+    *p |= ((Color & 0xf) << (Xpoint & 1 ? 0 : 4));
 }
 
 /********************************************************************************
@@ -180,7 +181,7 @@ function:   Update all memory to LCD
 ********************************************************************************/
 void OLED_Display(void)
 {
-    OLED_SetWindow(0, 0, sOLED_DIS.OLED_Dis_Column, sOLED_DIS.OLED_Dis_Page);
+    OLED_SetWindow(0, 0, sOLED_DIS.OLED_Dis_Column - 1, sOLED_DIS.OLED_Dis_Page - 1);
     OLED_WriteDataBlock((uint8_t*)Buffer, sOLED_DIS.OLED_Dis_Page * sOLED_DIS.OLED_Dis_Column / 2);
 }
 
@@ -190,8 +191,11 @@ function:
 ********************************************************************************/
 void OLED_ClearWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend, COLOR Color)
 {
+    Xstart &= ~1;
+    if (Xend % 2 == 0)
+        Xend++;
     uint16_t i,m, Xpoint, Ypoint;
-    Xpoint = (Xend - Xstart) / 2;
+    Xpoint = (Xend - Xstart + 1) / 2;
     Ypoint = Yend - Ystart;
     
     uint16_t Num = Xstart + Ystart * (sOLED_DIS.OLED_Dis_Column / 2);
@@ -208,18 +212,14 @@ function:   Update Window memory to LCD
 ********************************************************************************/
 void OLED_DisWindow(POINT Xstart, POINT Ystart, POINT Xend, POINT Yend)
 {
-    uint16_t page, Column, Xpoint, Ypoint;
-    Xpoint = (Xend - Xstart) / 2;
-    Ypoint = Yend - Ystart;
     OLED_SetWindow(Xstart, Ystart, Xend, Yend);
-    
-    //write data
-    COLOR *pBuf = (COLOR *)Buffer + Xstart + Ystart * (sOLED_DIS.OLED_Dis_Column / 2);
-    for (page = 0; page < Ypoint; page++) {
-        for(Column = 0; Column < Xpoint; Column++ ) {
-            OLED_WriteData(*pBuf);
-            pBuf++;
-        }
-        pBuf = (COLOR *)Buffer + Xstart + (Ystart + page + 1) * (sOLED_DIS.OLED_Dis_Column / 2);
+    Xstart &= ~1;
+    Xend |= 1;
+    unsigned buffer_stride = (sOLED_DIS.OLED_Dis_Column / 2);
+    unsigned window_stride = (Xend - Xstart + 1)/2;
+    unsigned y;
+    for (y = Ystart; y <= Yend; y++) {
+        COLOR *p = &Buffer[(Xstart / 2) + (y * buffer_stride)];
+        OLED_WriteDataBlock(p, window_stride);
     }
 }
